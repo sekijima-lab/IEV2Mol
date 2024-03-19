@@ -1,0 +1,39 @@
+REMARK  5 active torsions:
+REMARK  status: ('A' for Active; 'I' for Inactive)
+REMARK    1  A    between atoms: O_2  and  C_3 
+REMARK    2  A    between atoms: C_6  and  C_7 
+REMARK    3  A    between atoms: C_7  and  N_8 
+REMARK    4  A    between atoms: C_14  and  O_15 
+REMARK    5  A    between atoms: C_17  and  O_18 
+ROOT
+ATOM      1  C   UNL d   1      12.253   7.422  -3.891  0.00  0.00     0.118 A 
+ATOM      2  C   UNL d   1      11.547   6.558  -4.723  0.00  0.00     0.026 A 
+ATOM      3  C   UNL d   1      10.735   6.997  -5.749  0.00  0.00     0.002 A 
+ATOM      4  C   UNL d   1      10.620   8.383  -6.037  0.00  0.00     0.035 A 
+ATOM      5  C   UNL d   1      11.320   9.266  -5.175  0.00  0.00     0.116 A 
+ATOM      6  C   UNL d   1      12.072   8.781  -4.087  0.00  0.00     0.138 A 
+ENDROOT
+BRANCH   4   7
+ATOM      7  C   UNL d   1       9.708   8.852  -7.191  0.00  0.00     0.279 C 
+BRANCH   7   8
+ATOM      8  N   UNL d   1      10.028   8.214  -8.477  0.00  0.00     0.146 N 
+ATOM      9  C   UNL d   1       9.728   9.072  -9.612  0.00  0.00     0.289 C 
+ATOM     10  C   UNL d   1       9.973   8.394 -10.969  0.00  0.00     0.325 C 
+ATOM     11  N   UNL d   1       9.280   7.114 -11.098  0.00  0.00     0.343 N 
+ATOM     12  C   UNL d   1       9.591   6.259  -9.979  0.00  0.00     0.325 C 
+ATOM     13  C   UNL d   1       9.290   6.955  -8.664  0.00  0.00     0.289 C 
+ENDBRANCH   7   8
+ENDBRANCH   4   7
+BRANCH   5  14
+ATOM     14  O   UNL d   1      11.263  10.628  -5.340  0.00  0.00    -0.326 OA
+ATOM     15  C   UNL d   1      11.978  11.037  -6.472  0.00  0.00     0.181 C 
+ENDBRANCH   5  14
+BRANCH   6  16
+ATOM     16  O   UNL d   1      12.668   9.593  -3.217  0.00  0.00    -0.324 OA
+ATOM     17  C   UNL d   1      12.478   9.329  -1.800  0.00  0.00     0.182 C 
+ENDBRANCH   6  16
+BRANCH   1  18
+ATOM     18  O   UNL d   1      13.122   7.028  -2.901  0.00  0.00    -0.326 OA
+ATOM     19  C   UNL d   1      12.911   5.748  -2.421  0.00  0.00     0.181 C 
+ENDBRANCH   1  18
+TORSDOF 5

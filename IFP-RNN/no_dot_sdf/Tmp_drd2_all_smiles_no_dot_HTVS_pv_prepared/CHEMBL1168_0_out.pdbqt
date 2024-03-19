@@ -1,0 +1,66 @@
+REMARK  10 active torsions:
+REMARK  status: ('A' for Active; 'I' for Inactive)
+REMARK    1  A    between atoms: C_2  and  O_3 
+REMARK    2  A    between atoms: O_3  and  C_4 
+REMARK    3  A    between atoms: C_4  and  C_6 
+REMARK    4  A    between atoms: C_6  and  C_7 
+REMARK    5  A    between atoms: C_6  and  N_15 
+REMARK    6  A    between atoms: C_7  and  C_8 
+REMARK    7  A    between atoms: C_8  and  C_9 
+REMARK    8  A    between atoms: N_15  and  CA_16 
+REMARK    9  A    between atoms: CA_16  and  C_18 
+REMARK       I    between atoms: C_18  and  N_20 
+REMARK   10  A    between atoms: C_21  and  C_22 
+ROOT
+ATOM      1  N   ALA d   1       8.969   4.718 -12.635  0.00  0.00    -0.280 NA
+ENDROOT
+BRANCH   1   2
+ATOM      2  C   UNK d   0      10.040   3.835 -13.154  0.00  0.00     0.184 C 
+BRANCH   2   3
+ATOM      3  C   UNK d   0      10.979   4.439 -14.204  0.00  0.00     0.294 C 
+ATOM      4  O   UNK d   0      10.885   5.597 -14.596  0.00  0.00    -0.262 OA
+BRANCH   3   5
+ATOM      5  O   UNK d   0      11.861   3.531 -14.694  0.00  0.00    -0.300 OA
+BRANCH   5   6
+ATOM      6  C   UNK d   0      12.470   3.800 -15.954  0.00  0.00     0.152 C 
+ATOM      7  C   UNK d   0      13.474   4.977 -15.968  0.00  0.00     0.035 C 
+ENDBRANCH   5   6
+ENDBRANCH   3   5
+ENDBRANCH   2   3
+BRANCH   2   8
+ATOM      8  C   UNK d   0       9.374   2.568 -13.795  0.00  0.00     0.039 C 
+BRANCH   8   9
+ATOM      9  C   UNK d   0       8.202   2.847 -14.768  0.00  0.00     0.029 C 
+BRANCH   9  10
+ATOM     10  C   UNK d   0       7.276   1.651 -14.861  0.00  0.00    -0.022 A 
+ATOM     11  C   UNK d   0       7.431   0.715 -15.902  0.00  0.00    -0.004 A 
+ATOM     12  C   UNK d   0       6.550  -0.377 -16.003  0.00  0.00    -0.000 A 
+ATOM     13  C   UNK d   0       5.529  -0.560 -15.053  0.00  0.00    -0.000 A 
+ATOM     14  C   UNK d   0       5.376   0.363 -14.001  0.00  0.00    -0.000 A 
+ATOM     15  C   UNK d   0       6.246   1.467 -13.909  0.00  0.00    -0.004 A 
+ENDBRANCH   9  10
+ENDBRANCH   8   9
+ENDBRANCH   2   8
+ENDBRANCH   1   2
+BRANCH   1  16
+ATOM     16  CA  ALA d   1       9.291   5.991 -11.922  0.00  0.00     0.177 C 
+ATOM     17  CB  ALA d   1       8.218   7.039 -12.327  0.00  0.00     0.036 C 
+BRANCH  16  18
+ATOM     18  C   ALA d   1       9.378   5.784 -10.401  0.00  0.00     0.256 C 
+ATOM     19  O   ALA d   1       9.232   4.644  -9.958  0.00  0.00    -0.270 OA
+ATOM     20  N   UNK d   2       9.563   6.866  -9.597  0.00  0.00    -0.313 N 
+ATOM     21  C   UNK d   2       8.984   6.871  -8.228  0.00  0.00     0.084 C 
+ATOM     22  C   UNK d   2      10.072   8.202  -9.943  0.00  0.00     0.171 C 
+ATOM     23  C   UNK d   2       9.202   8.256  -7.638  0.00  0.00     0.023 C 
+ATOM     24  C   UNK d   2       9.636   5.927  -7.263  0.00  0.00     0.022 C 
+ATOM     25  C   UNK d   2       9.494   9.135  -8.854  0.00  0.00     0.035 C 
+ATOM     26  C   UNK d   2      10.386   8.129  -6.655  0.00  0.00     0.002 C 
+ATOM     27  C   UNK d   2      10.812   6.652  -6.634  0.00  0.00     0.002 C 
+BRANCH  22  28
+ATOM     28  C   UNK d   2      11.596   8.287  -9.892  0.00  0.00     0.207 C 
+ATOM     29  O   UNK d   2      12.334   7.634  -9.180  0.00  0.00    -0.646 OA
+ATOM     30  O   UNK d   2      12.135   9.181 -10.751  0.00  0.00    -0.646 OA
+ENDBRANCH  22  28
+ENDBRANCH  16  18
+ENDBRANCH   1  16
+TORSDOF 10

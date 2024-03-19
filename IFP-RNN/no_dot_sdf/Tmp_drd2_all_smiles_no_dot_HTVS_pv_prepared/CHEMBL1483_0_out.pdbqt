@@ -1,0 +1,39 @@
+REMARK  5 active torsions:
+REMARK  status: ('A' for Active; 'I' for Inactive)
+REMARK    1  A    between atoms: C_2  and  C_3 
+REMARK    2  A    between atoms: C_3  and  S_4 
+REMARK    3  A    between atoms: S_4  and  C_5 
+REMARK    4  A    between atoms: C_10  and  N_11 
+REMARK       I    between atoms: N_11  and  C_12 
+REMARK    5  A    between atoms: C_12  and  O_14 
+ROOT
+ATOM      1  C   UNL d   1      10.692   8.333  -7.425  0.00  0.00     0.027 A 
+ATOM      2  C   UNL d   1       9.754   7.642  -6.633  0.00  0.00     0.008 A 
+ATOM      3  C   UNL d   1       8.952   6.641  -7.197  0.00  0.00     0.022 A 
+ATOM      4  C   UNL d   1       9.087   6.354  -8.563  0.00  0.00     0.118 A 
+ATOM      5  N   UNL d   1       8.446   5.467  -9.399  0.00  0.00    -0.058 NA
+ATOM      6  C   UNL d   1       8.939   5.708 -10.617  0.00  0.00     0.755 A 
+ATOM      7  N   UNL d   1       9.875   6.650 -10.718  0.00  0.00    -0.058 NA
+ATOM      8  C   UNL d   1       9.999   7.065  -9.401  0.00  0.00     0.118 A 
+ATOM      9  C   UNL d   1      10.821   8.049  -8.799  0.00  0.00     0.027 A 
+ENDROOT
+BRANCH   6  10
+ATOM     10  N   UNL d   1       8.435   4.975 -11.708  0.00  0.00     0.005 NA
+ATOM     11  C   UNL d   1       9.088   4.732 -12.901  0.00  0.00     0.403 C 
+ATOM     12  O   UNL d   1      10.191   5.163 -13.255  0.00  0.00    -0.235 OA
+BRANCH  11  13
+ATOM     13  O   UNL d   1       8.318   3.917 -13.617  0.00  0.00    -0.280 OA
+ATOM     14  C   UNL d   1       8.802   3.394 -14.835  0.00  0.00     0.186 C 
+ENDBRANCH  11  13
+ENDBRANCH   6  10
+BRANCH   1  15
+ATOM     15  S   UNL d   1      11.719   9.556  -6.676  0.00  0.00    -0.114 SA
+BRANCH  15  16
+ATOM     16  C   UNL d   1      11.072   9.863  -5.015  0.00  0.00     0.062 C 
+BRANCH  16  17
+ATOM     17  C   UNL d   1      11.373   8.730  -4.024  0.00  0.00     0.012 C 
+ATOM     18  C   UNL d   1      12.821   8.700  -3.555  0.00  0.00     0.001 C 
+ENDBRANCH  16  17
+ENDBRANCH  15  16
+ENDBRANCH   1  15
+TORSDOF 5

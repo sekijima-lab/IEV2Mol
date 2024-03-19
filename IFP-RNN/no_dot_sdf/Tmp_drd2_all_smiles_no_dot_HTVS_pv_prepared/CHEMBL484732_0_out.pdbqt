@@ -1,0 +1,33 @@
+REMARK  2 active torsions:
+REMARK  status: ('A' for Active; 'I' for Inactive)
+REMARK    1  A    between atoms: C_2  and  C_3 
+REMARK    2  A    between atoms: C_3  and  N_4 
+ROOT
+ATOM      1  N   UNL d   1       9.173   5.798 -11.011  0.00  0.00     0.140 N 
+ATOM      2  C   UNL d   1       8.437   4.768 -10.338  0.00  0.00     0.282 C 
+ATOM      3  C   UNL d   1       9.082   4.178  -9.087  0.00  0.00     0.178 C 
+ATOM      4  O   UNL d   1       9.366   5.222  -8.174  0.00  0.00    -0.348 OA
+ATOM      5  C   UNL d   1      10.158   6.231  -8.774  0.00  0.00     0.169 C 
+ATOM      6  C   UNL d   1      10.583   7.242  -7.742  0.00  0.00     0.003 A 
+ATOM      7  C   UNL d   1      10.921   6.786  -6.451  0.00  0.00     0.002 A 
+ATOM      8  C   UNL d   1      11.339   7.670  -5.456  0.00  0.00     0.053 A 
+ATOM      9  C   UNL d   1      11.413   9.036  -5.786  0.00  0.00    -0.016 A 
+ATOM     10  C   UNL d   1      11.091   9.506  -7.059  0.00  0.00    -0.009 A 
+ATOM     11  C   UNL d   1      10.670   8.612  -8.059  0.00  0.00    -0.024 A 
+ATOM     12  C   UNL d   1      10.298   9.136  -9.435  0.00  0.00     0.028 C 
+ATOM     13  C   UNL d   1      10.190   8.068 -10.518  0.00  0.00     0.041 C 
+ATOM     14  C   UNL d   1       9.454   6.825 -10.000  0.00  0.00     0.251 C 
+ATOM     15  C   UNL d   1      11.917   9.997  -4.757  0.00  0.00     0.053 C 
+ATOM     16  C   UNL d   1      11.582   9.549  -3.335  0.00  0.00     0.134 C 
+ATOM     17  N   UNL d   1      11.860   8.137  -3.134  0.00  0.00    -0.234 NA
+ATOM     18  C   UNL d   1      11.772   7.211  -4.092  0.00  0.00     0.275 C 
+ATOM     19  O   UNL d   1      12.001   6.033  -3.851  0.00  0.00    -0.266 OA
+ENDROOT
+BRANCH   1  20
+ATOM     20  C   UNL d   1       8.391   6.239 -12.184  0.00  0.00     0.250 C 
+BRANCH  20  21
+ATOM     21  C   UNL d   1       8.222   5.176 -13.298  0.00  0.00     0.035 C 
+ATOM     22  C   UNL d   1       6.903   4.365 -13.292  0.00  0.00     0.002 C 
+ENDBRANCH  20  21
+ENDBRANCH   1  20
+TORSDOF 2
