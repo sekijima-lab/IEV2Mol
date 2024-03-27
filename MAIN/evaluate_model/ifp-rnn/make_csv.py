@@ -34,14 +34,14 @@ print("num: ", torch.cuda.device_count())
 valid_smiles_vector_dataset_path = "../../data/drd2_test_dataset_no_dot.pt"
 
 # 実験
-print("\n実験を開始します。")
+# print("\n実験を開始します。")
 cos_sim = nn.CosineSimilarity()
 
 valid_smiles_vector_dataset = torch.load(valid_smiles_vector_dataset_path)
 
 
 for test_index in range(10):
-    print(f"{test_index}番目のテストデータの処理を開始します")
+    print(f"start with testdata {test_index}")
 
     inp_smi = valid_smiles_vector_dataset[test_index][0]
     inp_vec = valid_smiles_vector_dataset[test_index][1]
@@ -57,7 +57,7 @@ for test_index in range(10):
             pose_index += 1
             print(f" test{test_index}/{smi_file_path}")
             file_head = smi_file_path.split(".")[0]
-            print(f" {file_head} を処理します")
+            # print(f" {file_head} を処理します")
 
             if not os.path.exists(f"../results/test{test_index}"):
                 os.mkdir(f"../results/test{test_index}")
@@ -77,11 +77,11 @@ for test_index in range(10):
                 for idx_smi, smi in enumerate(valid_smiles):
                     smi = smi.split("\t")[0]
                     f.write(f"{smi} {idx_smi}\n")
-            print("  out_smiles.smiに書き込みました")
+            print("  wrote out_smiles.smi")
 
 
             # テストデータのIEVを計算する
-            print("  テストデータのIEVを計算します")
+            print("  calculate IEV of testdata")
             subprocess.run(["rm", "prepred_out_smiles.maegz"])
             subprocess.run(["rm", "out_smiles_HTVS_pv.maegz"])
             subprocess.run(["rm", "out_smiles_HTVS_pv.interaction"])
@@ -115,24 +115,24 @@ for test_index in range(10):
             unique_smiles = list(set(valid_smiles))
             print(f" Uniqueness: {len(unique_smiles)/len(valid_smiles)}")
 
-            print("  IEV計算開始", file=sys.stderr)
+            print("  start calculating IEV", file=sys.stderr)
             loop = 0
             for t in range(90):
                 time.sleep(60)
-                print(f"  {t}分経過", file=sys.stderr)
+                print(f"  {t} min passed", file=sys.stderr)
                 loop += 1
                 if os.path.exists("out_smiles_HTVS_pv_max.interaction"):
                     break
             if os.path.exists("out_smiles_HTVS_pv_max.interaction"):
-                print("  IEV計算完了", file=sys.stderr)
+                print("  finish calculating IEV", file=sys.stderr)
             else:
-                print("  待ち時間が90分を超えたため中止します", file=sys.stderr)
+                print("  waiting over 90 min. stopped.", file=sys.stderr)
                 exit()
 
             out_iev = pd.read_csv("out_smiles_HTVS_pv_max.interaction", index_col=0)
         
             valid_iev_index = list(out_iev.index)
-            print(" IEVが有効なSMILES数: ", len(valid_iev_index))
+            print(" num of SMILES whose IEV is valid: ", len(valid_iev_index))
 
 
             column = ["smiles", "ievcos", "dscore"]
