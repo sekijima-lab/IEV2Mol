@@ -152,10 +152,10 @@ if __name__ == "__main__":
     torch_fix_seed()
     jtvae = JTNNVAE(vocab, hidden_size, latent_size, depthT, depthG)
     if os.path.exists(trained_jtvae_path):
-        print(f"{trained_jtvae_path}はすでに存在しています。")
+        print(f"{trained_jtvae_path} is already exists")
 
     else:
-        print("JT-VAEの学習を開始します。")
+        print("start training JT-VAE")
         jtvae = fit(
             device=device,
             model=jtvae,
@@ -169,5 +169,5 @@ if __name__ == "__main__":
             anneal_iter=20000,
             kl_anneal_iter=1000,
         )
-        print(f"JT-VAEとして学習したものを{trained_jtvae_path}に保存します。")
+        print(f"save trained JT-VAE at {trained_jtvae_path}")
         torch.save(jtvae.state_dict(), trained_jtvae_path)
