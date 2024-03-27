@@ -3,7 +3,7 @@ import rdkit.Chem as Chem
 
 import sys
 
-sys.path.append("/home/m.ozawa/M2/JTVAE/JTVAE/FastJTNNpy3/fast_jtnn")
+sys.path.append("path-to-this-directry")
 
 from chemutils import (
     get_clique_mol,
