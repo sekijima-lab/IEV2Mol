@@ -50,14 +50,14 @@ hidden_size = 450
 
 
 jtvae  = JTNNVAE(vocab, hidden_size, latent_size, depthT, depthG)
-print(f"{jtvae_path}を読み込みます。")
+print(f"loading {jtvae_path}")
 
 jtvae.load_state_dict(torch.load(jtvae_path))
 jtvae = jtvae.to(device)
 
 
 # 実験
-print("\n実験を開始します。")
+# print("\n実験を開始します。")
 jtvae.eval()
 num_sample = 100
 cos_sim = nn.CosineSimilarity()
@@ -66,10 +66,10 @@ cos_sim = nn.CosineSimilarity()
 with torch.no_grad():
     if os.path.exists(test_dataset_path):
         test_dataset = torch.load(test_dataset_path)
-        print(f"test_datasetを{test_dataset_path}からロードしました。")
-        print(f"test_datasetのサイズ: {len(test_dataset)}")
+        print(f"test_dataset is loaded from {test_dataset_path}")
+        print(f"test_dataset size: {len(test_dataset)}")
     else:
-        print(f"test_datasetがないよ")
+        print(f"test_dataset is not exists")
         exit()
 
     for i, (inp_smi, inp_vec) in enumerate(test_dataset):
@@ -134,7 +134,7 @@ with torch.no_grad():
         subprocess.run([f"{SCHRODINGER}/run", "python3", f"{SIEVE}/SIEVE-Score.py", "-m", "interaction", "-i", "./out_smiles_HTVS_pv.maegz", "-l", "sieve-score.log"])
         subprocess.run(["python3", "rest_max.py", "out_smiles_HTVS_pv.interaction"])
 
-        print(" IEV計算開始", file=sys.stderr)
+        print(" start calculating IEV", file=sys.stderr)
 
         # そのすきにDiversityの計算
         mols = [Chem.MolFromSmiles(smile) for smile in valid_smiles]
@@ -153,20 +153,20 @@ with torch.no_grad():
         loop = 0
         for j in range(90):
             time.sleep(60)
-            print(f" {j}分経過", file=sys.stderr)
+            print(f" {j} min passed", file=sys.stderr)
             loop += 1
             if os.path.exists("out_smiles_HTVS_pv_max.interaction"):
                 break
         if os.path.exists("out_smiles_HTVS_pv_max.interaction"):
-            print(" IEV計算完了", file=sys.stderr)
+            print(" finish calculating IEV", file=sys.stderr)
         else:
-            print(" 待ち時間が90分を超えたため中止します", file=sys.stderr)
+            print(" waiting over 90 min. stopped.", file=sys.stderr)
             exit()
         
-        print(" IEV計算結果読み込み開始", file=sys.stderr)
+        print(" loading IEV", file=sys.stderr)
         out_iev = pd.read_csv("out_smiles_HTVS_pv_max.interaction", index_col=0)
         valid_iev_index = list(out_iev.index)
-        print(" IEVが有効なSMILES数: ", len(valid_iev_index))
+        print(" num of SMILES whose IEV is valid: ", len(valid_iev_index))
 
 
         column = ["smiles", "ievcos", "dscore"]
