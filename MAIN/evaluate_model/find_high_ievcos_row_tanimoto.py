@@ -97,7 +97,7 @@ models = ["iev2mol", "jt-vae", "ifp-rnn", "random_chembl33"]
 japanese_models = ["IEV2Mol", "JT-VAE", "IFP-RNN", "Random_ChEMBL"]
  
 
-print(f"{ievcos_threshold}以上のIEVCos類似度かつ{tanimoto_threshold}以下のTanimoto類似度の分子の数")
+print(f"num of compounds whose IEV cosine similality is higher than {ievcos_threshold} and Tanimoto coefficient is lower than {tanimoto_threshold}")
 
 for test_index in range(10):
     print(f"test{test_index}")
@@ -128,7 +128,7 @@ for i in range(10):
         if model == "ifp-rnn":
             for j in model_dict['ifp-rnn'][i].keys():
                 if len(model_dict['ifp-rnn'][i][j]) == 0:
-                    print(f" test{i}の{model}の{int(j)+1}番目の構造は条件を満たす分子がありません．")
+                    print(f" test{i} : {model} (docking pose {int(j)+1}) cannot generate compounds that meet the requirements．")
                     continue
                 smiles = [model_dict['ifp-rnn'][i][j][k][0] for k in range(len(model_dict['ifp-rnn'][i][j]))]
                 tanimoto_list = [float(model_dict['ifp-rnn'][i][j][k][1]) for k in range(len(model_dict['ifp-rnn'][i][j]))]
@@ -157,7 +157,7 @@ for i in range(10):
                 img.save(f"results/test{i}/tanimoto{int(tanimoto_threshold*10)}e-1_ievcos{int(ievcos_threshold*10)}e-1/{model}_{j}_all.jpg")
         else:
             if len(model_dict[model][i]) == 0:
-                print(f" test{i}の{model}は条件を満たす分子がありません．")
+                print(f" test{i} : {model} cannot generate compounds that meet the requirements．")
                 continue
             smiles = [model_dict[model][i][j][0] for j in range(len(model_dict[model][i]))]
             tanimoto_list = [float(model_dict[model][i][j][1]) for j in range(len(model_dict[model][i]))]
@@ -184,11 +184,11 @@ for i in range(10):
             )
             img.save(f"results/test{i}/tanimoto{int(tanimoto_threshold*10)}e-1_ievcos{int(ievcos_threshold*10)}e-1/{model}_all.jpg")
 
-    print(f"test{i}での条件を満たす分子の描画が完了しました．")
+    print(f"test{i}: finish drawing compounds that meet the requirements．")
 
     with open(f"results/test{i}/tanimoto{int(tanimoto_threshold*10)}e-1_ievcos{int(ievcos_threshold*10)}e-1/dock_smiles.smi", "w") as f:
         f.write(f"{test_dataset[i][0]} seed\n")
         for smiles, model in dock_smiles_list:
             f.write(f"{smiles} {model}\n")
     
-    print(f"test{i}での条件を満たす分子のsmiファイルへの書き込みが完了しました．\n")
+    print(f"test{i}: finish writnig SMILES of compounds that meet the requirements．\n")
