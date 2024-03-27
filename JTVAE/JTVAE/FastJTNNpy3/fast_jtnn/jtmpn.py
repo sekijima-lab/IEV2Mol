@@ -4,7 +4,7 @@ import torch.nn.functional as F
 
 import sys
 
-sys.path.append("/home/m.ozawa/M2/JTVAE/JTVAE/FastJTNNpy3/fast_jtnn")
+sys.path.append("path-to-this-directry")
 from nnutils import create_var, index_select_ND
 from chemutils import get_mol
 import rdkit.Chem as Chem
