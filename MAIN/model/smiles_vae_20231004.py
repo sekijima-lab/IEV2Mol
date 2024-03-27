@@ -691,5 +691,5 @@ if __name__ == "__main__":
     # モデルの保存
     torch.save(model.state_dict(), save_model_path)
 
-    print(f"学習データとして{train_smi_path}を利用したモデルを{save_model_path}として保存しました．")
+    print(f"model trained with {train_smi_path} is saved at {save_model_path}")
 
