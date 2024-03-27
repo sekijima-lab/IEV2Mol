@@ -179,7 +179,7 @@ with torch.no_grad():
 
         print(" start calculating IEV", file=sys.stderr)
 
-        # そのすきにDiversityの計算
+        # Diversityの計算
         mols = [Chem.MolFromSmiles(smile) for smile in valid_smiles]
         fps = [AllChem.GetMorganFingerprintAsBitVect(m,2) for m in mols]
         sum = 0
@@ -189,7 +189,7 @@ with torch.no_grad():
 
         print(f" Diversity: {1 - sum/(len(fps)**2)}")
 
-        # さらにUniquenessの計算
+        # Uniquenessの計算
         unique_smiles = list(set(valid_smiles))
         print(f" Uniqueness: {len(unique_smiles)/len(valid_smiles)}")
 
