@@ -1,6 +1,6 @@
 import sys
 
-sys.path.append("/home/m.ozawa/M2/JTVAE/JTVAE/FastJTNNpy3/fast_jtnn")
+sys.path.append("absolute-path-to-here")
 from mol_tree import Vocab, MolTree
 from jtnn_vae import JTNNVAE
 from jtnn_enc import JTNNEncoder
