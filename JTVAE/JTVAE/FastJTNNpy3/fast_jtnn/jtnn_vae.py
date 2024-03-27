@@ -3,7 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import sys
 
-sys.path.append("/home/m.ozawa/M2/JTVAE/JTVAE/FastJTNNpy3/fast_jtnn")
+sys.path.append("path-to-this-directry")
 from mol_tree import Vocab, MolTree
 from nnutils import create_var, flatten_tensor, avg_pool
 from jtnn_enc import JTNNEncoder
