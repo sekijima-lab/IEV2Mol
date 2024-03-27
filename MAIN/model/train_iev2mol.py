@@ -158,15 +158,15 @@ else:
 
     test_dataset = torch.utils.data.TensorDataset(smiles_tensor_list, torch.stack(inter_tensor_list))
     torch.save(test_dataset, test_dataset_path)
-    print(f"test_datasetとtrain_datasetを{test_dataset_path}と{train_dataset_path}に保存しました。")
+    print(f"test_dataset and train_dataset are saved at {test_dataset_path} and {train_dataset_path}")
 
 test_dataloader = torch.utils.data.DataLoader(test_dataset, batch_size=128, shuffle=True)
 train_dataloader = torch.utils.data.DataLoader(train_dataset, batch_size=128, shuffle=True)
 
 # VAEの学習
 if os.path.exists(trained_vae_path):
-    print(f"{trained_vae_path}がすでに存在します")
+    print(f"model {trained_vae_path} is already exists")
 else:
     cvae.finetune(epochs=100, loader=train_dataloader, lr=1e-4, milestones=[i*20 for i in range(1,5)], gamma=0.8)
     cvae.save(trained_vae_path)
-    print(f"{trained_vae_path}を保存しました")
+    print(f"model is saved at {trained_vae_path}")
