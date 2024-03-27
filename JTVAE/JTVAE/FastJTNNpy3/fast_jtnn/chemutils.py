@@ -9,7 +9,7 @@ from rdkit.Chem.EnumerateStereoisomers import (
 )
 import sys
 
-sys.path.append("/home/m.ozawa/M2/JTVAE/JTVAE/FastJTNNpy3/fast_jtnn")
+sys.path.append("absolute-path-to-this-directry")
 from vocab import Vocab
 
 MST_MAX_WEIGHT = 100
