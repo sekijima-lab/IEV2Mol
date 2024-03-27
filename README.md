@@ -7,6 +7,7 @@
 ## DM-QP-1M
 - SMILES: 
     - all: `MAIN/data/Druglike_million_canonical_no_dot_dup.smi`
+        - This file is zipped. If you use, `unzip -j Druglike_million_canonical_no_dot_dup.smi.zip` in `MAIN/data`  
 
 ## DRD2 Active
 - SMILES only:
@@ -24,6 +25,7 @@
 ## ChEMBL33
 - SMILES
     - all: `MAIN/data/chembl_33_no_dot.smi`
+        - This file is zipped. If you use, `unzip -j chembl_33_no_dot.smi.zip` in `MAIN/data`  
     - Randomly selected 100 SMILES * 10 set: `MAIN/evaluate_model/random_chembl/chembl33_random100_{i}.smi`
 
 ## DRD2
