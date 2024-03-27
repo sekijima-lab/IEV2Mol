@@ -28,7 +28,7 @@ print("num: ", torch.cuda.device_count())
 
 
 # 実験
-print("\n実験を開始します。")
+# print("\n実験を開始します。")
 
 num_sample = 100
 cos_sim = nn.CosineSimilarity()
@@ -36,10 +36,10 @@ test_dataset_path = "../../data/drd2_test_dataset_no_dot.pt"
 
 if os.path.exists(test_dataset_path):
     test_dataset = torch.load(test_dataset_path)
-    print(f"test_datasetを{test_dataset_path}からロードしました。")
-    print(f"test_datasetのサイズ: {len(test_dataset)}")
+    print(f"test_dataset is loaded from {test_dataset_path}")
+    print(f"test_dataset size: {len(test_dataset)}")
 else:
-    print(f"test_datasetがないよ")
+    print(f"test_dataset is not exists")
     exit()
 
 # ランダムデータがない場合，作成
@@ -78,25 +78,25 @@ for i, (inp_smi, inp_vec) in enumerate(test_dataset):
     subprocess.run(["python3", "rest_max.py", "out_smiles_HTVS_pv.interaction"])
     
 
-    print(" IEV計算開始", file=sys.stderr)
+    print(" start calculating IEV", file=sys.stderr)
 
     loop = 0
     for j in range(120):
         time.sleep(10)
-        print(f" {j*10}秒経過", file=sys.stderr)
+        print(f" {j*10} sec passed", file=sys.stderr)
         loop += 1
         if os.path.exists("out_smiles_HTVS_pv_max.interaction"):
             break
     if os.path.exists("out_smiles_HTVS_pv_max.interaction"):
-        print(" IEV計算完了", file=sys.stderr)
+        print(" finish calculating IEV", file=sys.stderr)
     else:
-        print(" 待ち時間が1200秒を超えたため中止します", file=sys.stderr)
+        print(" waiting over 1200 sec. stopped.", file=sys.stderr)
         exit()
     
-    print(" IEV計算結果読み込み開始", file=sys.stderr)
+    print(" loading IEV", file=sys.stderr)
     out_iev = pd.read_csv("out_smiles_HTVS_pv_max.interaction", index_col=0)
     valid_iev_index = list(out_iev.index)
-    print(" IEVが有効なSMILES数: ", len(valid_iev_index))
+    print(" num of SMILES whose IEV is valid: ", len(valid_iev_index))
 
 
     column = ["smiles", "ievcos", "dscore"]
