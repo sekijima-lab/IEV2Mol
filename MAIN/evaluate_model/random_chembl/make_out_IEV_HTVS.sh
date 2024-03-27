@@ -9,8 +9,8 @@ rm prepred_out_smiles.maegz
 rm out_smiles_HTVS_pv.maegz
 rm out_smiles_HTVS_pv.interaction
 rm out_smiles_HTVS_pv_max.interaction
-slacknotice $SCHRODINGER/ligprep -ismi out_smiles.smi -omae prepred_out_smiles.maegz -WAIT -NJOBS 10 -TMPDIR $TMPDIR &
-slacknotice $SCHRODINGER/glide out_smiles_HTVS.in -OVERWRITE -NJOBS 10 -HOST "localhost:10" -TMPDIR $TMPDIR -ATTACHED -WAIT &
+$SCHRODINGER/ligprep -ismi out_smiles.smi -omae prepred_out_smiles.maegz -WAIT -NJOBS 10 -TMPDIR $TMPDIR &
+$SCHRODINGER/glide out_smiles_HTVS.in -OVERWRITE -NJOBS 10 -HOST "localhost:10" -TMPDIR $TMPDIR -ATTACHED -WAIT &
 $SCHRODINGER/run python3 $SIEVE/SIEVE-Score.py -m interaction -i ./out_smiles_HTVS_pv.maegz -l sieve-score.log & 
 python3 rest_max.py out_smiles_HTVS_pv.interaction &
 
