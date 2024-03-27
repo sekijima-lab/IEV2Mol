@@ -171,8 +171,8 @@ with torch.no_grad():
         SIEVE = "../../../SIEVE-Score"
         SCHRODINGER = "///path-to-schrodinger///"
         TMPDIR = "/tmp"
-        subprocess.run(["slacknotice", f"{SCHRODINGER}/ligprep", "-ismi", "out_smiles.smi", "-omae", "prepred_out_smiles.maegz", "-WAIT", "-NJOBS", "10", "-TMPDIR", f"{TMPDIR}"])
-        subprocess.run(["slacknotice", f"{SCHRODINGER}/glide", "out_smiles_HTVS.in", "-OVERWRITE", "-NJOBS", "10", "-HOST", "localhost:10", "-TMPDIR", f"{TMPDIR}", "-ATTACHED", "-WAIT"])
+        subprocess.run([f"{SCHRODINGER}/ligprep", "-ismi", "out_smiles.smi", "-omae", "prepred_out_smiles.maegz", "-WAIT", "-NJOBS", "10", "-TMPDIR", f"{TMPDIR}"])
+        subprocess.run([f"{SCHRODINGER}/glide", "out_smiles_HTVS.in", "-OVERWRITE", "-NJOBS", "10", "-HOST", "localhost:10", "-TMPDIR", f"{TMPDIR}", "-ATTACHED", "-WAIT"])
         subprocess.run([f"{SCHRODINGER}/run", "python3", f"{SIEVE}/SIEVE-Score.py", "-m", "interaction", "-i", "./out_smiles_HTVS_pv.maegz", "-l", "sieve-score.log"])
         subprocess.run(["python3", "rest_max.py", "out_smiles_HTVS_pv.interaction"])
 
