@@ -73,10 +73,10 @@ trained_cvae_path = "../../model/iev2mol_no_dot.pt"
 # データの準備
 if os.path.exists(test_dataset_path):
     test_dataset = torch.load(test_dataset_path)
-    print(f"test_datasetを{test_dataset_path}からロードしました。")
-    print(f"test_datasetのサイズ: {len(test_dataset)}")
+    print(f"test_dataset is loaded from {test_dataset_path}")
+    print(f"test_dataset size: {len(test_dataset)}")
 else:
-    print(f"test_datasetがないよ")
+    print(f"test_dataset is not exist at {test_dataset_path}")
     exit()
 
 vec_length = test_dataset[0][1].shape[-1]
@@ -84,31 +84,30 @@ vec_length = test_dataset[0][1].shape[-1]
 
 # 事前学習済みモデルを用意
 if not os.path.exists(inter_vae_path):
-    print(f"Interaction VAEの学習済みモデルがないよ")
+    print(f"trained Interaction VAE is not exists")
     exit()
 
 elif not os.path.exists(smiles_vae_path):
-    print(f"SMILES VAEの学習済みモデルがないよ")
+    print(f"trained SMILES VAE is not exists")
     exit()
 
 elif not os.path.exists(trained_cvae_path):
-    print(f"{trained_cvae_path} に学習済みモデルがありません")
+    print(f"trained IEV2Mol is not exists at {trained_cvae_path}")
     exit()
 
 inter_vae = InteractionVAE(device=device, vec_length=vec_length)
 inter_vae.load_state_dict(torch.load(inter_vae_path))
-print(f"学習ずみInteraction VAEとして{inter_vae_path}をロードしました")
+print(f"trained Interaction VAE is loaded from {inter_vae_path}")
 
 smiles_vae = SmilesVAE(device=device, vocab=make_vocab(read_smiles(smiles_pretrain_data_path)), config=smiles_config).to(device)
 smiles_vae.load_state_dict(torch.load(smiles_vae_path))
 model = CVAE(device=device, pretrained_smiles_vae=smiles_vae, pretrained_inter_vae=inter_vae).to(device)
 model.load_state_dict(torch.load(trained_cvae_path))
-print(f"学習済みモデルとして{trained_cvae_path}をロードしました")
+print(f"trained IEV2Mol is loaded from {trained_cvae_path}")
 
 
 
 # 実験
-print("\n実験を開始します。")
 
 
 with torch.no_grad():
@@ -178,7 +177,7 @@ with torch.no_grad():
         subprocess.run(["python3", "rest_max.py", "out_smiles_HTVS_pv.interaction"])
 
 
-        print(" IEV計算開始", file=sys.stderr)
+        print(" start calculating IEV", file=sys.stderr)
 
         # そのすきにDiversityの計算
         mols = [Chem.MolFromSmiles(smile) for smile in valid_smiles]
@@ -197,20 +196,20 @@ with torch.no_grad():
         loop = 0
         for j in range(90):
             time.sleep(60)
-            print(f" {j}分経過", file=sys.stderr)
+            print(f" {j} min passed", file=sys.stderr)
             loop += 1
             if os.path.exists("out_smiles_HTVS_pv_max.interaction"):
                 break
         if os.path.exists("out_smiles_HTVS_pv_max.interaction"):
-            print(" IEV計算完了", file=sys.stderr)
+            print(" finish calusulating IEV", file=sys.stderr)
         else:
-            print(" 待ち時間が90分を超えたため中止します", file=sys.stderr)
+            print(" waiting over 90 min. stop.", file=sys.stderr)
             exit()
         
-        print(" IEV計算結果読み込み開始", file=sys.stderr)
+        print(" loading IEV", file=sys.stderr)
         out_iev = pd.read_csv("out_smiles_HTVS_pv_max.interaction", index_col=0)
         valid_iev_index = list(out_iev.index)
-        print(" IEVが有効なSMILES数: ", len(valid_iev_index))
+        print(" num of SMILES whose IEV is valid: ", len(valid_iev_index))
 
 
         column = ["smiles", "ievcos", "dscore"]
