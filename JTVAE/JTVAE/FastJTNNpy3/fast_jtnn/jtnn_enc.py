@@ -5,7 +5,7 @@ from collections import deque
 
 import sys
 
-sys.path.append("/home/m.ozawa/M2/JTVAE/JTVAE/FastJTNNpy3/fast_jtnn")
+sys.path.append("path-to-this-directry")
 from mol_tree import Vocab, MolTree
 from nnutils import create_var, index_select_ND
 
