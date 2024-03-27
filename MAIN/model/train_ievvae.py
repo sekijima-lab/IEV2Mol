@@ -14,7 +14,7 @@ def fit_inter_vae(device, tensor_len, smiles_inter_dataset, save_path):
     print("Start fit_inter_vae()")
 
     # Interaction VAEの学習
-    print(" Interaction VAEの学習を開始します。")
+    # print(" Interaction VAEの学習を開始します。")
     interaction_vae = InteractionVAE(device, tensor_len)
 
     interaction_vae = interaction_vae.to(device)
@@ -44,8 +44,8 @@ if __name__ == "__main__":
     smiles_inter_dataset = torch.load(smiles_inter_train_dataset_path)
 
     if os.path.exists(trained_inter_vae_path):
-        print(f"{trained_inter_vae_path}がすでに存在しています．")
+        print(f"{trained_inter_vae_path} is already exists")
     else:
-        print(f"学習を開始します．")
+        print(f"start training")
         print(len(smiles_inter_dataset[0][1]))
         interaction_vae = fit_inter_vae(device=device, tensor_len=len(smiles_inter_dataset[0][1]), smiles_inter_dataset=smiles_inter_dataset, save_path=trained_inter_vae_path)
