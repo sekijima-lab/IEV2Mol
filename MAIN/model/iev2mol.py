@@ -19,8 +19,6 @@ from inter_vae_0110 import InteractionVAE
 from smiles_vae_20231004 import SmilesVAE, Trainer, make_vocab, read_smiles
 from tqdm.auto import tqdm
 
-# ちゃんと凍結できているかの確認は必要そう
-
 
 class CVAE(nn.Module):
     def __init__(
@@ -170,4 +168,4 @@ class CVAE(nn.Module):
 
     def save(self, path):
         torch.save(self.state_dict(), path)
-        print(f"モデルを{path}に保存しました")
+        print(f"model is saved at {path}")
