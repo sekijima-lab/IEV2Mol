@@ -14,6 +14,14 @@ from matplotlib import pyplot as plt
 from rdkit import Chem, DataStructs
 from rdkit.Chem import AllChem, Draw
 from smiles_vae_20231004 import SmilesVAE, make_vocab, read_smiles
+import argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--ievvae', '-i', type=str, help='path to ievvae')
+parser.add_argument('--output', '-o', type=str, help='path to save')
+args = parser.parse_args()
+
+
 
 sys.path.append('../data')
 from Smiles_Vector_Dataset import Smiles_Vector_Dataset
@@ -42,18 +50,27 @@ def torch_fix_seed(seed=1):
 ############################################################################
 # smilesvaeが違うのでtensorizeしたデータセットも変わる．
 
-inter_vae_path = "inter_vae_drd2_no_dot.pt"          # DRD2の阻害剤データで事前学習したVAE
+inter_vae_path = './AA2AR/inter_vae_100.pt'          # DRD2の阻害剤データで事前学習したVAE
+# inter_vae_path = args.ievvae
 smiles_vae_path  = "smiles_vae_dmqp1m_no_dot_dup.pt"      # 被りのないDMQP1MのSMILESで事前学習したVAE
 
 smiles_pretrain_data_path = "../data/Druglike_million_canonical_no_dot_dup.smi"
-trained_vae_path = "iev2mol_no_dot.pt"
+trained_vae_path = "iev2mol_AA2AR.pt" # path and filename of output
+# trained_vae_path = args.output
 
-train_dataset_path = "../data/smitensor_iev_train_dataset_tensorized_by_smiles_vae_dmqp1m_no_dot_dup.pt" # 被りのないDMQP1MのSMILESで事前学習したSMILES-VAEでtensorizeしたデータセット
-test_dataset_path = "../data/smitensor_iev_test_dataset_tensorized_by_smiles_vae_dmqp1m_no_dot_dup.pt"
+# train_dataset_path = "../data/smitensor_iev_train_dataset_tensorized_by_smiles_vae_dmqp1m_no_dot_dup.pt" # 被りのないDMQP1MのSMILESで事前学習したSMILES-VAEでtensorizeしたデータセット
+# test_dataset_path = "../data/smitensor_iev_test_dataset_tensorized_by_smiles_vae_dmqp1m_no_dot_dup.pt"
+train_dataset_path = 'AA2AR_train_tensor.pt' # output path of tensorized dataset
+test_dataset_path = 'AA2AR_test_tensor.pt'
 
 train_raw_dataset_path = "../data/drd2_train_dataset_no_dot.pt"
 test_raw_dataset_path = "../data/drd2_test_dataset_no_dot.pt"
+train_raw_dataset_path = "../data/AA2AR/AA2AR_train.pt"
+test_raw_dataset_path = "../data/AA2AR/AA2AR_test.pt"
 
+train_data = torch.load(train_raw_dataset_path)
+_, iev = train_data[0]
+vec_length = len(iev)
 
 batch_size = 128
 max_smiles_length = 201
@@ -96,8 +113,9 @@ elif not os.path.exists(smiles_vae_path):
 
 else:
     # inter_vae = InteractionVAE(device=device, vec_length=189, latent_dim=inter_config["latent_dim"], hidden_dim=inter_config["hidden_dim"])
-    inter_vae = InteractionVAE(device=device, vec_length=189)
-    inter_vae.load_state_dict(torch.load(inter_vae_path))
+    inter_vae = InteractionVAE(device=device, vec_length=vec_length).to(device)
+    ckpt = torch.load(inter_vae_path)
+    inter_vae.load_state_dict(ckpt)
     print(f"学習ずみInteraction VAEとして{inter_vae_path}をロードしました")
 
     smiles_vae = SmilesVAE(device=device, vocab=make_vocab(read_smiles(smiles_pretrain_data_path)), config=smiles_config).to(device)
@@ -158,15 +176,15 @@ else:
 
     test_dataset = torch.utils.data.TensorDataset(smiles_tensor_list, torch.stack(inter_tensor_list))
     torch.save(test_dataset, test_dataset_path)
-    print(f"test_dataset and train_dataset are saved at {test_dataset_path} and {train_dataset_path}")
+    print(f"test_datasetとtrain_datasetを{test_dataset_path}と{train_dataset_path}に保存しました。")
 
 test_dataloader = torch.utils.data.DataLoader(test_dataset, batch_size=128, shuffle=True)
 train_dataloader = torch.utils.data.DataLoader(train_dataset, batch_size=128, shuffle=True)
 
 # VAEの学習
 if os.path.exists(trained_vae_path):
-    print(f"model {trained_vae_path} is already exists")
+    print(f"{trained_vae_path}がすでに存在します")
 else:
     cvae.finetune(epochs=100, loader=train_dataloader, lr=1e-4, milestones=[i*20 for i in range(1,5)], gamma=0.8)
     cvae.save(trained_vae_path)
-    print(f"model is saved at {trained_vae_path}")
+    print(f"{trained_vae_path}を保存しました")

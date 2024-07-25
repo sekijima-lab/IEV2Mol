@@ -1,14 +1,4 @@
-"""
-density graphをプロットする
-10のテストデータ個別のプロットと，全体のプロットを行う．
-対象モデル：
-    NO-IEVLOSS100・JT-VAE・IFP-RNN・ランダムCHEMBL33
-メトリクス：
-    IEVCos類似度・Tanimoto類似度・Dockingscoreの分布
-"""
-
 import sys
-
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -19,6 +9,12 @@ from rdkit.Chem import AllChem
 
 sys.path.append("../data")  
 from Smiles_Vector_Dataset import Smiles_Vector_Dataset
+
+
+
+protein = 'DRD2'
+
+
 
 ievcos_model3 = []
 ievcos_jt_vae = []
@@ -35,14 +31,14 @@ dscore_jt_vae = []
 dscore_ifp_rnn = []
 dscore_random_chembl33 = []
 
-test_dataset = torch.load("../data/drd2_test_dataset_no_dot.pt")
+test_dataset = torch.load(f"../data/{protein}/{protein}_test.pt")
 
-for i in range(10):
+for i in range(100):
     seed_mol = Chem.MolFromSmiles(test_dataset[i][0])
     seed_fp = AllChem.GetMorganFingerprintAsBitVect(seed_mol,2)
 
     # IEV2Mol
-    df_model3 = pd.read_csv(f'results/test{i}/raw_csv/iev2mol.csv')
+    df_model3 = pd.read_csv(f'results/{protein}/test{i}/raw_csv/iev2mol.csv')
     ievcos_model3 = ievcos_model3 + list(df_model3['ievcos'])
     
     mols = [Chem.MolFromSmiles(smile) for smile in df_model3['smiles']]
@@ -53,7 +49,7 @@ for i in range(10):
     dscore_model3 = dscore_model3 + list(df_model3['dscore'])
 
     # JT-VAE
-    df_jtvae = pd.read_csv(f'results/test{i}/raw_csv/jt-vae.csv')
+    df_jtvae = pd.read_csv(f'results/{protein}/test{i}/raw_csv/jt-vae.csv')
     ievcos_jt_vae = ievcos_jt_vae + list(df_jtvae['ievcos'])
 
     mols = [Chem.MolFromSmiles(smile) for smile in df_jtvae['smiles']]
@@ -64,7 +60,7 @@ for i in range(10):
     dscore_jt_vae = dscore_jt_vae + list(df_jtvae['dscore'])
 
     # IFP-RNN
-    df_ifprnn = pd.read_csv(f'results/test{i}/raw_csv/ifp-rnn_0.csv')
+    df_ifprnn = pd.read_csv(f'results/{protein}/test{i}/raw_csv/ifp-rnn.csv')
     ievcos_ifp_rnn = ievcos_ifp_rnn + list(df_ifprnn['ievcos'])
 
     mols = [Chem.MolFromSmiles(smile) for smile in df_ifprnn['smiles'] if type(smile) == str]
@@ -74,8 +70,8 @@ for i in range(10):
 
     dscore_ifp_rnn = dscore_ifp_rnn + list(df_ifprnn['dscore'])
 
-    # ランダムCHEMBL33
-    df_random = pd.read_csv(f'results/test{i}/raw_csv/random_chembl33.csv')
+    # random chembl
+    df_random = pd.read_csv(f'results/{protein}/test{i}/raw_csv/random_chembl33.csv')
     ievcos_random_chembl33 = ievcos_random_chembl33 + list(df_random['ievcos'])
 
     mols = [Chem.MolFromSmiles(smile) for smile in df_random['smiles']]
@@ -86,8 +82,6 @@ for i in range(10):
 
     dscore_random_chembl33 = dscore_random_chembl33 + list(df_random['dscore'])
 
-    # 各テストデータごとの分布のプロット
-    # 1. IEVCos類似度の分布をプロット
     fig = plt.figure(figsize=(12,6))
     ax = fig.add_subplot(111)
 
@@ -99,9 +93,8 @@ for i in range(10):
     ax.tick_params(labelsize=18)
     ax.set_xlabel("IEV cosine similarity", fontsize=20, labelpad=0)
     ax.set_ylabel("Density", fontsize=20, labelpad=0)
-    fig.savefig(f'results/test{i}/density_ievcos.jpeg')
+    fig.savefig(f'results/{protein}/test{i}/density_ievcos.jpeg')
 
-    # 2. Tanimoto類似度の分布をプロット
     plt.clf()
     fig = plt.figure(figsize=(12,6))
     ax = fig.add_subplot(111)
@@ -114,9 +107,8 @@ for i in range(10):
     ax.tick_params(labelsize=18)
     ax.set_xlabel("Tanimoto", fontsize=20, labelpad=0)
     ax.set_ylabel("Density", fontsize=20, labelpad=0)
-    fig.savefig(f'results/test{i}/density_tanimoto.jpeg')
+    fig.savefig(f'results/{protein}/test{i}/density_tanimoto.jpeg')
 
-    # 3. ドッキングスコアの分布をプロット
     plt.clf()
     fig = plt.figure(figsize=(12,6))
     ax = fig.add_subplot(111)
@@ -129,10 +121,8 @@ for i in range(10):
     ax.tick_params(labelsize=18)
     ax.set_xlabel("Docking score", fontsize=20, labelpad=0)
     ax.set_ylabel("Density", fontsize=20, labelpad=0)
-    fig.savefig(f'results/test{i}/density_dscore.jpeg')
-
-# 10のテストデータ全ての分布のプロット
-# 1. IEVCos類似度の分布をプロット
+    fig.savefig(f'results/{protein}/test{i}/density_dscore.jpeg')
+    
 fig = plt.figure(figsize=(12,6))
 ax = fig.add_subplot(111)
 
@@ -144,9 +134,8 @@ ax.legend(fontsize=18)
 ax.tick_params(labelsize=18)
 ax.set_xlabel("IEV cosine similarity", fontsize=20, labelpad=0)
 ax.set_ylabel("Density", fontsize=20, labelpad=0)
-fig.savefig(f'results/density_ievcos.jpeg')
+fig.savefig(f'results/{protein}/density_ievcos.jpeg')
 
-# 2. Tanimoto類似度の分布をプロット
 plt.clf()
 fig = plt.figure(figsize=(12,6))
 ax = fig.add_subplot(111)
@@ -159,9 +148,8 @@ ax.legend(fontsize=18)
 ax.tick_params(labelsize=18)
 ax.set_xlabel("Tanimoto", fontsize=20, labelpad=0)
 ax.set_ylabel("Density", fontsize=20, labelpad=0)
-fig.savefig(f'results/density_tanimoto.jpeg')
+fig.savefig(f'results/{protein}/density_tanimoto.jpeg')
 
-# 3. ドッキングスコアの分布をプロット
 plt.clf()
 fig = plt.figure(figsize=(12,6))
 ax = fig.add_subplot(111)
@@ -174,4 +162,4 @@ ax.legend(fontsize=18)
 ax.tick_params(labelsize=18)
 ax.set_xlabel("Docking score", fontsize=20, labelpad=0)
 ax.set_ylabel("Density", fontsize=20, labelpad=0)
-fig.savefig(f'results/density_dscore.jpeg')
+fig.savefig(f'results/{protein}/density_dscore.jpeg')

@@ -14,5 +14,5 @@ data = data.drop_duplicates("# title", keep="first")
 identity = path.split("/")[-1].split(".")[0] # 元となったファイル名の，拡張子より前の部分を取得
 new_path = identity + "_max.interaction"
 print("after: data length = ", len(data))
-print(f"IEV is saved at {new_path}")
+print(f"{new_path}にInteraction Vectorのファイルを保存します")
 data.to_csv(new_path, index=False, sep=",")

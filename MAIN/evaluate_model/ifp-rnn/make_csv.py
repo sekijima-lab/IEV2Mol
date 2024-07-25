@@ -17,31 +17,38 @@ import time
 sys.path.append("../../data")
 from Smiles_Vector_Dataset import Smiles_Vector_Dataset
 
-
-
-
+# sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
+# from data.Smiles_Vector_Dataset import Smiles_Vector_Dataset
 
 # Lynxで生成したIFP-RNN（DRD2のIFPで学習ずみ）に対してテストのみを行う
 # 生成した化合物のSMILES，IEVCos，ドッキングスコア，IEVをcsvファイルに書き込む
 # これで作られるcsvはSMILESがValidなものだけになっているため，長さに注意する（indexは100あるが，SMILESがNoneの列がある）
 
-
-
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print("device: ", device)
 print("num: ", torch.cuda.device_count())
 
+protein = "DRD2"
+
 valid_smiles_vector_dataset_path = "../../data/drd2_test_dataset_no_dot.pt"
+valid_smiles_vector_dataset_path = f"../../data/{protein}/{protein}_test.pt"
+"../../data/DRD2/DRD2_test.pt"
+
+with open('./out_smiles_HTVS.in', 'r') as f:
+    line = f.read().splitlines()
+grid = line[0].split(' ')
+grid_file = grid[-1]
+print(f'grid_file: {grid_file}')
 
 # 実験
-# print("\n実験を開始します。")
+print("\n実験を開始します。")
 cos_sim = nn.CosineSimilarity()
 
 valid_smiles_vector_dataset = torch.load(valid_smiles_vector_dataset_path)
 
 
-for test_index in range(10):
-    print(f"start with testdata {test_index}")
+for test_index in range(100):
+    print(f"{test_index}番目のテストデータの処理を開始します")
 
     inp_smi = valid_smiles_vector_dataset[test_index][0]
     inp_vec = valid_smiles_vector_dataset[test_index][1]
@@ -52,23 +59,23 @@ for test_index in range(10):
 
     # 各テストデータ内のポーズを取得（１つとは限らない）
     pose_index = -1
-    for smi_file_path in sorted(os.listdir(f"test{test_index}")):
-        if smi_file_path.endswith(".smi"):
+    for smi_file_path in sorted(os.listdir(f"../results/{protein}/test{test_index}")):
+        if smi_file_path.endswith(".csv"):
             pose_index += 1
             print(f" test{test_index}/{smi_file_path}")
             file_head = smi_file_path.split(".")[0]
-            # print(f" {file_head} を処理します")
+            print(f" {file_head} を処理します")
 
-            if not os.path.exists(f"../results/test{test_index}"):
-                os.mkdir(f"../results/test{test_index}")
-                os.mkdir(f"../results/test{test_index}/raw_csv")
+            if not os.path.exists(f"../results/{protein}/test{test_index}"):
+                os.mkdir(f"../results/{protein}/test{test_index}")
+                os.mkdir(f"../results/{protein}/test{test_index}/raw_csv")
 
 
             # テストデータのSMILESを読み込む
-            valid_smiles_df = pd.read_csv(f"test{test_index}/{file_head}.smi", sep=" ", header=0) # header: [Seed SMILES, "Seed"]
+            valid_smiles_df = pd.read_csv(f"../results/{protein}/test{test_index}/{file_head}.csv",header=0) # header: [Seed SMILES, "Seed"]
             
 
-            valid_smiles = valid_smiles_df.iloc[:, 0].tolist()
+            valid_smiles = valid_smiles_df.iloc[1:, 0].tolist()
 
             # out_smiles.smiに書き込む
             subprocess.run(["rm", "out_smiles.smi"])
@@ -77,11 +84,11 @@ for test_index in range(10):
                 for idx_smi, smi in enumerate(valid_smiles):
                     smi = smi.split("\t")[0]
                     f.write(f"{smi} {idx_smi}\n")
-            print("  wrote out_smiles.smi")
+            print("  out_smiles.smiに書き込みました")
 
 
             # テストデータのIEVを計算する
-            print("  calculate IEV of testdata")
+            print("  テストデータのIEVを計算します")
             subprocess.run(["rm", "prepred_out_smiles.maegz"])
             subprocess.run(["rm", "out_smiles_HTVS_pv.maegz"])
             subprocess.run(["rm", "out_smiles_HTVS_pv.interaction"])
@@ -91,12 +98,12 @@ for test_index in range(10):
             # subprocess.run(["qsub", "-g", "///group name///", "make_out_IEV_HTVS.sh"])
 
             # ローカルでシュレディンガーが動かせる場合は以下
-            SCHROD_LICENSE_FILE = "///path-to-licence-file///"
+            SCHROD_LICENSE_FILE='opt/schrodinger/licenses/80_client_2023-11-28_license_192.168.0.32.lic'
             SIEVE = "../../../SIEVE-Score"
-            SCHRODINGER = "///path-to-schrodinger///"
+            SCHRODINGER = '/opt/schrodinger2023-4/'
             TMPDIR = "/tmp"
-            subprocess.run(["slacknotice", f"{SCHRODINGER}/ligprep", "-ismi", "out_smiles.smi", "-omae", "prepred_out_smiles.maegz", "-WAIT", "-NJOBS", "10", "-TMPDIR", f"{TMPDIR}"])
-            subprocess.run(["slacknotice", f"{SCHRODINGER}/glide", "out_smiles_HTVS.in", "-OVERWRITE", "-NJOBS", "10", "-HOST", "localhost:10", "-TMPDIR", f"{TMPDIR}", "-ATTACHED", "-WAIT"])
+            subprocess.run([f"{SCHRODINGER}/ligprep", "-ismi", "out_smiles.smi", "-omae", "prepred_out_smiles.maegz", "-WAIT", "-NJOBS", "1", "-TMPDIR", f"{TMPDIR}"])
+            subprocess.run([f"{SCHRODINGER}/glide", "out_smiles_HTVS.in", "-OVERWRITE", "-NJOBS", "1", "-HOST", "localhost:10", "-TMPDIR", f"{TMPDIR}", "-ATTACHED", "-WAIT"])
             subprocess.run([f"{SCHRODINGER}/run", "python3", f"{SIEVE}/SIEVE-Score.py", "-m", "interaction", "-i", "./out_smiles_HTVS_pv.maegz", "-l", "sieve-score.log"])
             subprocess.run(["python3", "rest_max.py", "out_smiles_HTVS_pv.interaction"])
 
@@ -115,24 +122,24 @@ for test_index in range(10):
             unique_smiles = list(set(valid_smiles))
             print(f" Uniqueness: {len(unique_smiles)/len(valid_smiles)}")
 
-            print("  start calculating IEV", file=sys.stderr)
+            print("  IEV計算開始", file=sys.stderr)
             loop = 0
             for t in range(90):
                 time.sleep(60)
-                print(f"  {t} min passed", file=sys.stderr)
+                print(f"  {t}分経過", file=sys.stderr)
                 loop += 1
                 if os.path.exists("out_smiles_HTVS_pv_max.interaction"):
                     break
             if os.path.exists("out_smiles_HTVS_pv_max.interaction"):
-                print("  finish calculating IEV", file=sys.stderr)
+                print("  IEV計算完了", file=sys.stderr)
             else:
-                print("  waiting over 90 min. stopped.", file=sys.stderr)
+                print("  待ち時間が90分を超えたため中止します", file=sys.stderr)
                 exit()
 
             out_iev = pd.read_csv("out_smiles_HTVS_pv_max.interaction", index_col=0)
         
             valid_iev_index = list(out_iev.index)
-            print(" num of SMILES whose IEV is valid: ", len(valid_iev_index))
+            print(" IEVが有効なSMILES数: ", len(valid_iev_index))
 
 
             column = ["smiles", "ievcos", "dscore"]
@@ -152,4 +159,4 @@ for test_index in range(10):
                 df.iloc[index,1:3] = [cos_sim_list[-1], docking_score_list[-1]]
                 df.iloc[index,3:] = iev_tensor.reshape(-1).cpu().detach().numpy()
             
-            df.to_csv(f"../results/test{test_index}/raw_csv/ifp-rnn_{pose_index}.csv")
+            df.to_csv(f"../results/{protein}/test{test_index}/raw_csv/ifp-rnn_{pose_index}.csv")

@@ -14,10 +14,12 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
-
+import wandb
 from inter_vae_0110 import InteractionVAE
 from smiles_vae_20231004 import SmilesVAE, Trainer, make_vocab, read_smiles
 from tqdm.auto import tqdm
+
+# ちゃんと凍結できているかの確認は必要そう
 
 
 class CVAE(nn.Module):
@@ -122,6 +124,9 @@ class CVAE(nn.Module):
             
         print(f"loss: {loss}")
 
+        wandb.log({
+            "loss": loss.item()})
+        
         return loss
     
 
@@ -133,7 +138,18 @@ class CVAE(nn.Module):
         scheduler = optim.lr_scheduler.MultiStepLR(
             optimizer, milestones=milestones, gamma=gamma
         )
-        
+
+        wandb.init(project="IEV2Mol",
+                   config={"epochs": epochs,
+                            "lr": lr,
+                            "milestones": milestones,
+                            "gamma": gamma,
+                            "batch_size": loader.batch_size,
+                            "concat_latent_dim": self.concat_latent_dim,
+                            "smiles_vae_latent_dim": self.pretrained_smiles_vae.config["latent_size"],
+                            "inter_vae_latent_dim": self.pretrained_inter_vae.latent_dim
+                            })
+
         for epoch in range(epochs):
             print(f"epoch {epoch} start!")
             tqdm_data = tqdm(loader, desc="Training (epoch #{})".format(epoch))
@@ -154,4 +170,4 @@ class CVAE(nn.Module):
 
     def save(self, path):
         torch.save(self.state_dict(), path)
-        print(f"model is saved at {path}")
+        print(f"モデルを{path}に保存しました")
