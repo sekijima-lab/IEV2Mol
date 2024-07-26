@@ -9,8 +9,11 @@ import torch.optim as optim
 import torch.utils.data
 from tqdm import tqdm
 
-sys.path.append("../../JTVAE/JTVAE/FastJTNNpy3")
-from fast_jtnn import *
+# sys.path.append("../../JTVAE/JTVAE/FastJTNNpy3")
+# sys.path.append("../../../JTVAE/JTVAE/FastJTNNpy3")
+# from fast_jtnn import *
+
+import wandb
 
 
 # サンプリングの時0.1をかけない
@@ -113,7 +116,7 @@ class InteractionVAE(nn.Module):
         x = self.enc_batchnorm_1(x)
         x = self.dropout(x)
         x = x.view(x.size(0), -1)  # (batch, 10*(vec_length/3))
-        x = F.selu(self.enc_linear_1(x))  # (batch, hidden_dim)
+        x = F.selu(self.enc_linear_1(x))  # (batch, hidden_dim) # ここでエラー
         logit = self.enc_batchnorm_2(x)
         return logit
 
@@ -172,7 +175,8 @@ class InteractionVAE(nn.Module):
 
     def fit(
         self,
-        dataset,
+        train_dataset,
+        valid_dataset,
         save_path,
         batch_size=32,
         lr=1e-3,
@@ -185,10 +189,24 @@ class InteractionVAE(nn.Module):
         anneal_rate=0.9,
         anneal_iter=40000,
         kl_anneal_iter=2000,
-    ):
+        ):
         optimizer = optim.Adam(self.parameters(), lr=lr)
         scheduler = optim.lr_scheduler.ExponentialLR(optimizer, anneal_rate)
         total_step = 0
+        wandb.init(project = 'IEV-VAE', config={'batch_size': batch_size,
+                                                                'lr': lr,
+                                                                'clip_norm': clip_norm,
+                                                                'beta': beta,
+                                                                'step_beta': step_beta,
+                                                                'max_beta': max_beta,
+                                                                'warmup': warmup,
+                                                                'epochs': epochs,
+                                                                'anneal_rate': anneal_rate,
+                                                                'anneal_iter': anneal_iter,
+                                                                'kl_anneal_iter': kl_anneal_iter,
+                                                                'save_path': save_path,
+                                                                'vec_length': self.vec_length,
+                                                                }) 
 
         for epoch in tqdm(range(epochs)):
             train_loss = 0
@@ -198,7 +216,7 @@ class InteractionVAE(nn.Module):
             self.train()
             for batch_idx, (_, input_vecs) in enumerate(
                 torch.utils.data.DataLoader(
-                    dataset,
+                    train_dataset,
                     batch_size=batch_size,
                     shuffle=True,
                     drop_last=True,
@@ -231,13 +249,37 @@ class InteractionVAE(nn.Module):
                 inter_kl_loss += tmp_inter_kl_loss
                 inter_recon_loss += tmp_inter_recon_loss
 
+            # self.eval()
+            # with torch.no_grad():
+            #     val_loss = 0
+            #     val_inter_recon_loss = 0
+            #     val_inter_kl_loss = 0
+            #     for val_batch_idx, (_, input_vecs) in enumerate(
+            #         torch.utils.data.DataLoader(
+            #             valid_dataset,
+            #             batch_size=batch_size,
+            #             shuffle=True,
+            #             drop_last=True,)
+            #         ):
+            #         input_vecs = input_vecs.to(self.device)
+            #         # ロス計算
+            #         output_vecs, z, tmp_inter_kl_loss = self.forward(input_vecs)
+            #         tmp_inter_recon_loss = self.inter_reconstruction_loss(output_vecs, input_vecs)
+            #         loss = beta * tmp_inter_kl_loss + tmp_inter_recon_loss
+
+            #         val_loss += loss
+            #         val_inter_kl_loss += tmp_inter_kl_loss
+            #         val_inter_recon_loss += tmp_inter_recon_loss
+            
             print(
-                epoch,
+                epoch+1,
                 "epoch:",
                 "total_step:",
                 total_step,
                 " train loss = ",
                 train_loss.item() / (batch_idx + 1),
+                # ", val loss = ",
+                # val_loss.item() / (val_batch_idx + 1), 
                 ", inter_kl_loss = ",
                 inter_kl_loss.item() / (batch_idx + 1),
                 ", inter_recon_loss = ",
@@ -247,5 +289,17 @@ class InteractionVAE(nn.Module):
                 ", lr = ",
                 scheduler.get_last_lr()[0],
             )
-
-        torch.save(self.state_dict(), save_path)
+            wandb.log({'train_loss': train_loss.item() / (batch_idx + 1),
+                    #    'val_loss': val_loss.item() / (val_batch_idx + 1),
+                       'train_inter_kl_loss': inter_kl_loss.item() / (batch_idx + 1),
+                    #    'val_inter_kl_loss': val_inter_kl_loss.item() / (val_batch_idx + 1),
+                       'train_inter_recon_loss': inter_recon_loss.item() / (batch_idx + 1),
+                    #    'val_inter_recon_loss': val_inter_recon_loss.item() / (val_batch_idx + 1),
+                       'beta': beta,
+                       'lr': scheduler.get_last_lr()[0],
+                       'epoch': epoch
+                       })
+            if (epoch+1) % 10 == 0:
+                torch.save(self.state_dict(), save_path + '/'+ f'inter_vae_{epoch+1}.pt')
+        wandb.finish()
+        

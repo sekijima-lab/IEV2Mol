@@ -305,6 +305,7 @@ class SmilesVAE(nn.Module):
                 i_eos_mask = ~eos_mask & (
                     w == self.EOS
                 )  # eos_maskがTrueかつwがEOS（=）ならTrue
+                
                 end_pads[i_eos_mask] = (
                     i + 1
                 )  # i_eos_maskがTrueの行のend_padsの値をi+1にする（=各生成中SMILESのEOSの位置を記録）
@@ -336,7 +337,7 @@ class SmilesVAE(nn.Module):
             end_pads = (
                 torch.tensor([max_length]).repeat(batch_size).to(self.device)
             )  # end_pads: (batch_size)
-            eos_mask = torch.zeros(batch_size, dtype=torch.uint8).to(
+            eos_mask = torch.zeros(batch_size, dtype=torch.bool).to(
                 self.device
             )  # eos_mask: (batch_size)
 
@@ -691,5 +692,5 @@ if __name__ == "__main__":
     # モデルの保存
     torch.save(model.state_dict(), save_model_path)
 
-    print(f"model trained with {train_smi_path} is saved at {save_model_path}")
+    print(f"学習データとして{train_smi_path}を利用したモデルを{save_model_path}として保存しました．")
 

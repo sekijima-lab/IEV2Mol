@@ -12,12 +12,16 @@ import math, random, sys
 import numpy as np
 from collections import deque
 import pickle as pickle
-
+sys.path.append('../../')
 sys.path.append("../../JTVAE/JTVAE/FastJTNNpy3/")
-from fast_jtnn import *
+# from fast_jtnn import *
+from JTVAE.JTVAE.FastJTNNpy3.fast_jtnn import MolTreeFolder, Vocab, JTNNVAE
 import rdkit
 from tqdm import tqdm
 import os
+import wandb
+
+protein = 'DRD2'
 
 ##############################ヘッダ#######################################
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -53,7 +57,7 @@ def fit(
     step_beta=0.002,
     max_beta=1.0,
     warmup=40000,
-    epoch=20,
+    epoch=50,
     anneal_rate=0.9,
     anneal_iter=40000,
     kl_anneal_iter=2000,
@@ -71,6 +75,14 @@ def fit(
     print(
         "Model #Params: %dK" % (sum([x.nelement() for x in model.parameters()]) / 1000,)
     )
+    
+    wandb.init(project = f'JT-VAE', name=protein, config={'batch_size': batch_size,
+                                                            'epochs': epoch,
+                                                            'anneal_rate': anneal_rate,
+                                                            'anneal_iter': anneal_iter,
+                                                            'kl_anneal_iter': kl_anneal_iter,
+                                                            'save_path': save_path,
+                                                            }) 
 
     optimizer = optim.Adam(model.parameters(), lr=lr)
     scheduler = lr_scheduler.ExponentialLR(optimizer, anneal_rate)
@@ -89,11 +101,13 @@ def fit(
 
     for epoch in tqdm(range(epoch)):
         loader = MolTreeFolder(moses_dir, vocab, batch_size)  # , num_workers=4)
-        for batch in loader:
+        for i, batch in enumerate(loader):
+            total_loss = 0
             total_step += 1
             try:
                 model.zero_grad()
                 loss, kl_div, wacc, tacc, sacc = model(batch, beta)
+                total_loss += loss.item()
                 loss.backward()
                 nn.utils.clip_grad_norm_(model.parameters(), clip_norm)
                 optimizer.step()
@@ -127,19 +141,20 @@ def fit(
 
             if total_step % kl_anneal_iter == 0 and total_step >= warmup:
                 beta = min(max_beta, beta + step_beta)
-            # torch.save(model.state_dict(), save_dir + "/model.epoch-" + str(epoch))
-    torch.save(model.state_dict(), save_path)
-    print("Model saved to: ", save_path)
+        torch.save(model.state_dict(), f'{save_path}/jtvae_{protein}_epoch{str(epoch)}')
+        epoch_loss = total_loss / (i + 1)
+        wandb.log({'epoch': epoch, 'loss': epoch_loss})
+    # torch.save(model.state_dict(), save_path)
+    # print("Model saved to: ", save_path)
     return model
 
 
 
 if __name__ == "__main__":
-
-
-    vocab_path = "../data/vocab_drd2_train_no_dot.txt"
-    trained_jtvae_path = "jtvae_drd2_no_dot.pt"
+    vocab_path = f"../data/{protein}/vocab.txt"
+    trained_jtvae_path = f"./{protein}"
     moses_preprocessed_dir = "../../JTVAE/JTVAE/FastJTNNpy3/fast_molvae/drd2_train_smiles_no_dot_moses-processed"
+    moses_preprocessed_dir = f"../../JTVAE/JTVAE/FastJTNNpy3/fast_molvae/{protein}_train_moses-processed"
 
     vocab = [x.strip("\r\n ") for x in open(vocab_path)]
     vocab = Vocab(vocab)
@@ -151,23 +166,23 @@ if __name__ == "__main__":
 
     torch_fix_seed()
     jtvae = JTNNVAE(vocab, hidden_size, latent_size, depthT, depthG)
-    if os.path.exists(trained_jtvae_path):
-        print(f"{trained_jtvae_path} is already exists")
+    # if os.path.exists(trained_jtvae_path):
+    #     print(f"{trained_jtvae_path}はすでに存在しています。")
 
-    else:
-        print("start training JT-VAE")
-        jtvae = fit(
-            device=device,
-            model=jtvae,
-            moses_dir=moses_preprocessed_dir,
-            vocab=vocab,
-            save_path=trained_jtvae_path,
-            batch_size=2,
-            beta=0,
-            lr=1e-3, 
-            warmup=20000, 
-            anneal_iter=20000,
-            kl_anneal_iter=1000,
-        )
-        print(f"save trained JT-VAE at {trained_jtvae_path}")
-        torch.save(jtvae.state_dict(), trained_jtvae_path)
+ 
+    print("JT-VAEの学習を開始します。")
+    jtvae = fit(
+        device=device,
+        model=jtvae,
+        moses_dir=moses_preprocessed_dir,
+        vocab=vocab,
+        save_path=trained_jtvae_path,
+        batch_size=2,
+        beta=0,
+        lr=1e-3, 
+        warmup=20000, 
+        anneal_iter=20000,
+        kl_anneal_iter=1000,
+    )
+    # print(f"JT-VAEとして学習したものを{trained_jtvae_path}に保存します。")
+    # torch.save(jtvae.state_dict(), trained_jtvae_path)
