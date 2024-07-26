@@ -1,7 +1,5 @@
 # Trained Models
-- IEV2Mol: `MAIN/model/iev2mol_no_dot.pt`　
-- JT-VAE: `MAIN/model/jtvae_drd2_no_dot.pt`
-- IFP-RNN: `IFP-RNN/no_dot_sdf/results/fullBits--80--0.1731--0.0010000`
+- IEV2Mol: `MAIN/model/`　
 
 # Data
 ## DM-QP-1M
@@ -20,8 +18,6 @@
 - SMILES
     - all: `MAIN/data/chembl_33_no_dot.smi`
         - This file is zipped. If you use, `unzip -j chembl_33_no_dot.smi.zip` in `MAIN/data`  
-    - Randomly selected 100 SMILES * 10 set: `MAIN/evaluate_model/random_chembl/chembl33_random100_{i}.smi`
-
 
 # Environment
 ```
