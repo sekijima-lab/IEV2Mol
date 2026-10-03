@@ -14,7 +14,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
-import wandb
+from iev_runtime import tracker as wandb
 from inter_vae_0110 import InteractionVAE
 from smiles_vae_20231004 import SmilesVAE, Trainer, make_vocab, read_smiles
 from tqdm.auto import tqdm

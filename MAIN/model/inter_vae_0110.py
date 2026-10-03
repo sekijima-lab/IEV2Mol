@@ -4,6 +4,9 @@ import numpy as np
 import pandas
 import torch
 import torch.nn as nn
+from iev_math.batchnorm import CompatibleBatchNorm1d
+from iev_math.activations import exp, selu
+from iev_math.mode import old_compatible
 import torch.nn.functional as F
 import torch.optim as optim
 import torch.utils.data
@@ -13,7 +16,7 @@ from tqdm import tqdm
 # sys.path.append("../../../JTVAE/JTVAE/FastJTNNpy3")
 # from fast_jtnn import *
 
-import wandb
+from iev_runtime import tracker as wandb
 
 
 # サンプリングの時0.1をかけない
@@ -28,6 +31,10 @@ class InteractionVAE(nn.Module):
     ):
         super(InteractionVAE, self).__init__()
 
+        self.old_compatible = old_compatible()
+        self.exp = exp if self.old_compatible else torch.exp
+        self.selu = selu if self.old_compatible else F.selu
+        BatchNorm = CompatibleBatchNorm1d if self.old_compatible else nn.BatchNorm1d
         self.device = device
         self.vec_length = vec_length
         self.latent_dim = latent_dim
@@ -36,9 +43,9 @@ class InteractionVAE(nn.Module):
         self.conv_1 = nn.Conv1d(
             1, 10, stride=3, kernel_size=3
         )  # out: (batch, 10, vec_length-kernel/3)
-        self.enc_batchnorm_1 = nn.BatchNorm1d(10)
+        self.enc_batchnorm_1 = BatchNorm(10)
         self.enc_linear_1 = nn.Linear(10 * (vec_length // 3), hidden_dim)
-        self.enc_batchnorm_2 = nn.BatchNorm1d(hidden_dim)
+        self.enc_batchnorm_2 = BatchNorm(hidden_dim)
         self.enc_linear_mean1 = nn.Linear(hidden_dim, latent_dim // 2)
         self.enc_linear_logvar1 = nn.Linear(hidden_dim, latent_dim // 2)
         self.enc_linear_mean2 = nn.Linear(hidden_dim, latent_dim // 2)
@@ -46,13 +53,13 @@ class InteractionVAE(nn.Module):
 
         # decoder
         self.dec_linear_2 = nn.Linear(latent_dim, latent_dim)
-        self.dec_batchnorm_3 = nn.BatchNorm1d(latent_dim)
+        self.dec_batchnorm_3 = BatchNorm(latent_dim)
         self.dec_linear_3 = nn.Linear(latent_dim, hidden_dim)
-        self.dec_batchnorm_4 = nn.BatchNorm1d(hidden_dim)
+        self.dec_batchnorm_4 = BatchNorm(hidden_dim)
         self.dec_linear_4 = nn.Linear(hidden_dim, 10 * (vec_length // 3))
-        self.dec_batchnorm_5 = nn.BatchNorm1d(10 * (vec_length // 3))
+        self.dec_batchnorm_5 = BatchNorm(10 * (vec_length // 3))
         self.dec_transcnn = nn.ConvTranspose1d(10, 1, stride=3, kernel_size=3)
-        self.dec_batchnorm_6 = nn.BatchNorm1d(vec_length)
+        self.dec_batchnorm_6 = BatchNorm(vec_length)
         self.dec_linear_5 = nn.Linear(vec_length, vec_length)
 
         self.relu = nn.ReLU()
@@ -101,13 +108,13 @@ class InteractionVAE(nn.Module):
     def kl_loss(self, z_mean, z_logvar):
         batch_size = z_mean.size(0)
         return (
-            -0.5 * torch.sum(1 + z_logvar - z_mean.pow(2) - z_logvar.exp()) / batch_size
+            -0.5 * torch.sum(1 + z_logvar - z_mean.pow(2) - self.exp(z_logvar)) / batch_size
         )
 
     def sampling(self, z_mean, z_logvar):
         # epsilon = 1e-1 * torch.randn_like(z_logvar)
         epsilon = torch.randn_like(z_logvar)
-        return torch.exp(0.5 * z_logvar) * epsilon + z_mean
+        return self.exp(0.5 * z_logvar) * epsilon + z_mean
 
     def encode(self, x):
         x = x.to(torch.float32)
@@ -116,7 +123,7 @@ class InteractionVAE(nn.Module):
         x = self.enc_batchnorm_1(x)
         x = self.dropout(x)
         x = x.view(x.size(0), -1)  # (batch, 10*(vec_length/3))
-        x = F.selu(self.enc_linear_1(x))  # (batch, hidden_dim) # ここでエラー
+        x = self.selu(self.enc_linear_1(x))  # (batch, hidden_dim) # ここでエラー
         logit = self.enc_batchnorm_2(x)
         return logit
 
@@ -135,13 +142,13 @@ class InteractionVAE(nn.Module):
     def decode(self, z):
         batch_size = z.size(0)
         # z.shape = (batch, latent_dim)
-        z = F.selu(self.dec_linear_2(z))  # (batch, latent_dim)
+        z = self.selu(self.dec_linear_2(z))  # (batch, latent_dim)
         z = self.dec_batchnorm_3(z)
         z = self.dropout(z)
-        z = F.selu(self.dec_linear_3(z))  # (batch, hidden_dim)
+        z = self.selu(self.dec_linear_3(z))  # (batch, hidden_dim)
         z = self.dec_batchnorm_4(z)
         z = self.dropout(z)
-        z = F.selu(self.dec_linear_4(z))  # (batch, 10*(vec_length/3))
+        z = self.selu(self.dec_linear_4(z))  # (batch, 10*(vec_length/3))
         z = self.dec_batchnorm_5(z)
         z = self.dropout(z)
         z = z.contiguous().view(batch_size, 10, -1)  # (batch, 10, vec_length/3)

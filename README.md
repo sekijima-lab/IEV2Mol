@@ -1,3 +1,11 @@
+# Maintained CVAE runtime (separate branch)
+
+The paper version remains on `main`. This branch updates the **main IEV2Mol CVAE CPU runtime** to Python 3.12.15 and current pinned dependencies for security maintenance. It is not intended to be merged into the paper branch.
+
+Use the isolated installation and `MAIN/model/runtime_cli.py` commands in [validation/REPRODUCE.md](validation/REPRODUCE.md). Historical scalar arithmetic is the default; `--no-old-compatible` selects native modern arithmetic. Checkpoints use restricted tensor loading and datasets use JSON plus numeric NPZ. See [validation/REPORT.md](validation/REPORT.md) for frozen comparison results, security scope and limitations.
+
+The instructions below are historical. Their training scripts, JT-VAE, IFP-RNN, Vina and external docking workflows are outside this maintained CLI validation and still require separate historical environments.
+
 # Trained Models
 - IEV2Mol: `MAIN/model/`　
 

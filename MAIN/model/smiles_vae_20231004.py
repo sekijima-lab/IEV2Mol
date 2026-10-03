@@ -1,5 +1,8 @@
 import torch
 import torch.nn as nn
+from iev_math.gru import CompatibleGRU
+from iev_math.activations import exp
+from iev_math.mode import old_compatible
 import torch.nn.functional as F
 from torch.nn.utils import clip_grad_norm_
 import torch.optim as optim
@@ -16,6 +19,9 @@ class SmilesVAE(nn.Module):
     def __init__(self, vocab, config, device):
         super().__init__()
 
+        self.old_compatible = old_compatible()
+        self.exp = exp if self.old_compatible else torch.exp
+        GRU = CompatibleGRU if self.old_compatible else nn.GRU
         self.device = device
 
         self.char2idx = vocab  # dict of tokens->int. Contains "PAD, SOS, EOS, UNK"
@@ -35,7 +41,7 @@ class SmilesVAE(nn.Module):
         # vocabの種類数，embedding後の次元数，無視するindex
 
         # encoder
-        self.encoder_gru = nn.GRU(
+        self.encoder_gru = GRU(
             embedding_dim,
             config["encoder_hidden_size"],
             num_layers=config["encoder_num_layers"],
@@ -54,7 +60,7 @@ class SmilesVAE(nn.Module):
         self.encoder_logvar = nn.Linear(encoder_gru_output_dim, config["latent_size"])
 
         # decoder
-        self.decoder_gru = nn.GRU(
+        self.decoder_gru = GRU(
             embedding_dim + config["latent_size"],
             config["decoder_hidden_size"],
             num_layers=config["decoder_num_layers"],
@@ -144,9 +150,9 @@ class SmilesVAE(nn.Module):
         logvar = self.encoder_logvar(h)  # logvar: (batch_size, latent_size)
 
         eps = torch.randn_like(mean)
-        z = mean + (logvar / 2).exp() * eps
+        z = mean + self.exp(logvar / 2) * eps
 
-        kl_loss = -0.5 * (1 + logvar - mean.pow(2) - logvar.exp()).sum(1).mean()
+        kl_loss = -0.5 * (1 + logvar - mean.pow(2) - self.exp(logvar)).sum(1).mean()
 
         return z, kl_loss
 
